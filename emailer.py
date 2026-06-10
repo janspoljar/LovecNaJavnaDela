@@ -1,58 +1,110 @@
 """
-emailer.py — Pošiljanje email alertov prek Resend API
-Tedenski pregled novih javnih naročil za naročnike.
+emailer.py — Pošiljanje email alertov prek Resend API.
+Grupira naročila po kategorijah in pošlje HTML email naročniku.
 """
 
-import resend
 import logging
-from config import RESEND_API_KEY, FROM_EMAIL
+from datetime import datetime
+from collections import defaultdict
+
+import resend
+
+import config
 
 logger = logging.getLogger(__name__)
 
 # Inicializiraj Resend klient
-resend.api_key = RESEND_API_KEY
+resend.api_key = config.RESEND_API_KEY
+
+# Ikone za posamezne kategorije (za prikaz v emailu)
+KATEGORIJE_IKONE = {
+    "IT & Software": "💻",
+    "Gradbeništvo": "🏗️",
+    "Zdravstvo & Farmacija": "🏥",
+    "Čiščenje & Vzdrževanje": "🧹",
+    "Transport & Vozila": "🚌",
+    "Energetika": "⚡",
+    "Hrana & Catering": "🍎",
+    "Okolje & Voda": "💧",
+    "Obramba & Varnost": "🛡️",
+    "Drugo": "📌",
+}
+
+# Bazni URL za direktne linke na naročila
+EJN_URL = "https://ejn.gov.si"
 
 
-def sestavi_html_email(narocila, prejemnik_email):
+def _grupiraj_po_kategorijah(narocila: list) -> dict:
     """
-    Sestavi HTML vsebino email alerta.
-
-    Args:
-        narocila (list): Seznam naročil kot slovarjev
-        prejemnik_email (str): Email prejemnika
-
-    Returns:
-        str: HTML vsebina emaila
+    Grupira seznam naročil po kategorijah.
+    Naročilo z več kategorijami se pojavi v vsaki od njih.
     """
-    vrstice = ""
+    import json
+
+    skupine = defaultdict(list)
     for n in narocila:
-        url = n.get("url", "#")
-        naslov = n.get("naslov", "Brez naslova")
-        narocnik = n.get("narocnik", "Neznano")
-        datum = n.get("datum_objave", "")
+        kategorije = n.get("kategorije", [])
+        # Kategorije so lahko JSON string (iz baze) ali že list
+        if isinstance(kategorije, str):
+            try:
+                kategorije = json.loads(kategorije or "[]")
+            except json.JSONDecodeError:
+                kategorije = []
+        if not kategorije:
+            kategorije = ["Drugo"]
+        for kat in kategorije:
+            skupine[kat].append(n)
+    return dict(skupine)
 
-        vrstice += f"""
-        <tr>
-            <td style="padding: 10px; border-bottom: 1px solid #eee;">
-                <a href="{url}" style="color: #1a73e8; font-weight: bold;">{naslov}</a><br>
-                <small style="color: #666;">{narocnik} | {datum}</small>
-            </td>
-        </tr>
-        """
 
+def _sestavi_html(uporabnik_email: str, narocila: list) -> str:
+    """
+    Sestavi HTML vsebino emaila: glava, kategorije z naročili, footer.
+    """
+    danes = datetime.now().strftime("%d. %m. %Y")
+    skupine = _grupiraj_po_kategorijah(narocila)
+
+    # Glava emaila
     html = f"""
     <html>
-    <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h2 style="color: #333;">Tedenski pregled javnih naročil</h2>
-        <p>Pozdravljeni,</p>
-        <p>Ta teden je bilo objavljenih <strong>{len(narocila)}</strong> novih javnih naročil:</p>
+    <body style="font-family: Arial, sans-serif; max-width: 640px; margin: 0 auto; padding: 20px; color: #333;">
+        <h2 style="color: #1a1a2e; border-bottom: 2px solid #1a73e8; padding-bottom: 8px;">
+            Nova javna naročila — {danes}
+        </h2>
+        <p>Skupno število novih naročil: <strong>{len(narocila)}</strong></p>
+    """
+
+    # Sekcija za vsako kategorijo
+    for kategorija, seznam in sorted(skupine.items()):
+        ikona = KATEGORIJE_IKONE.get(kategorija, "📌")
+        html += f"""
+        <h3 style="background: #f0f4ff; padding: 8px 12px; border-radius: 6px; margin-top: 24px;">
+            {ikona} {kategorija} ({len(seznam)})
+        </h3>
         <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
-            {vrstice}
-        </table>
-        <hr style="margin-top: 30px;">
+        """
+        for n in seznam:
+            # Naziv omejimo na 100 znakov
+            naziv = (n.get("naziv") or "Brez naziva")[:100]
+            narocnik = n.get("narocnik") or "Neznan naročnik"
+            rok = n.get("rok_oddaje") or "ni podan"
+            html += f"""
+            <tr>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #eee;">
+                    <a href="{EJN_URL}" style="color: #1a73e8; font-weight: bold; text-decoration: none;">{naziv}</a><br>
+                    <small style="color: #666;">{narocnik}</small><br>
+                    <small>Rok oddaje: <span style="color: #d93025; font-weight: bold;">{rok}</span></small>
+                </td>
+            </tr>
+            """
+        html += "</table>"
+
+    # Footer z odjava linkom
+    html += f"""
+        <hr style="margin-top: 32px; border: none; border-top: 1px solid #ddd;">
         <p style="font-size: 12px; color: #999;">
-            Prejemate ta email, ker ste naročeni na jn-watchdog.
-            Za odjavo nam pišite na {FROM_EMAIL}.
+            Prejemate ta email, ker ste naročeni na JN Watchdog.<br>
+            <a href="https://tvojadomena.si/odjava?email={uporabnik_email}" style="color: #999;">Odjava od obvestil</a>
         </p>
     </body>
     </html>
@@ -60,53 +112,77 @@ def sestavi_html_email(narocila, prejemnik_email):
     return html
 
 
-def posli_alert(prejemnik_email, narocila):
+def pošlji_email(uporabnik_email: str, narocila: list) -> bool:
     """
-    Pošlje email alert z novimi javnimi naročili.
+    Pošlje email alert z novimi naročili prek Resend.
 
     Args:
-        prejemnik_email (str): Email naslov prejemnika
-        narocila (list): Seznam novih naročil
+        uporabnik_email: Email naslov prejemnika.
+        narocila:        Seznam naročil (slovarji iz baze ali scraperja).
 
     Returns:
-        bool: True če uspešno poslano
+        True če uspešno poslano, False sicer.
     """
     if not narocila:
-        logger.info(f"Ni novih naročil za {prejemnik_email}, email preskočen.")
+        logger.info(f"Ni naročil za {uporabnik_email}, email preskočen.")
         return False
 
-    html_vsebina = sestavi_html_email(narocila, prejemnik_email)
+    danes = datetime.now().strftime("%d. %m. %Y")
+    html = _sestavi_html(uporabnik_email, narocila)
 
     try:
         odgovor = resend.Emails.send({
-            "from": FROM_EMAIL,
-            "to": prejemnik_email,
-            "subject": f"Tedenska naročila — {len(narocila)} novih naročil",
-            "html": html_vsebina,
+            "from": config.FROM_EMAIL,
+            "to": uporabnik_email,
+            "subject": f"📋 {len(narocila)} novih javnih naročil — {danes}",
+            "html": html,
         })
-        logger.info(f"Email uspešno poslan na {prejemnik_email}: {odgovor}")
+        logger.info(f"Email poslan na {uporabnik_email}: {odgovor}")
         return True
     except Exception as e:
-        logger.error(f"Napaka pri pošiljanju emaila na {prejemnik_email}: {e}")
+        logger.error(f"Napaka pri pošiljanju emaila na {uporabnik_email}: {e}")
         return False
 
 
-def posli_vsem_narocnikom(narocniki, narocila):
+def pošlji_test_email(email: str) -> bool:
     """
-    Pošlje alert vsem aktivnim naročnikom.
-
-    Args:
-        narocniki (list): Seznam aktivnih naročnikov
-        narocila (list): Seznam novih naročil
+    Pošlje testni email s 3 dummy naročili — za preverbo Resend integracije.
     """
-    uspesno = 0
-    neuspesno = 0
+    dummy_narocila = [
+        {
+            "pjn": "JN-DUMMY-001",
+            "naziv": "Razvoj spletne aplikacije za upravljanje dokumentov",
+            "narocnik": "Ministrstvo za javno upravo",
+            "rok_oddaje": "15. 07. 2026",
+            "kategorije": ["IT & Software"],
+        },
+        {
+            "pjn": "JN-DUMMY-002",
+            "naziv": "Rekonstrukcija ceste in obnova kanalizacije",
+            "narocnik": "Občina Maribor",
+            "rok_oddaje": "20. 07. 2026",
+            "kategorije": ["Gradbeništvo"],
+        },
+        {
+            "pjn": "JN-DUMMY-003",
+            "naziv": "Dobava zdravil za bolnišnično lekarno",
+            "narocnik": "UKC Ljubljana",
+            "rok_oddaje": "10. 07. 2026",
+            "kategorije": ["Zdravstvo & Farmacija"],
+        },
+    ]
+    return pošlji_email(email, dummy_narocila)
 
-    for narocnik in narocniki:
-        email = narocnik.get("email")
-        if posli_alert(email, narocila):
-            uspesno += 1
-        else:
-            neuspesno += 1
 
-    logger.info(f"Alerti poslani: {uspesno} uspešno, {neuspesno} neuspešno.")
+# ---------------------------------------------------------------------------
+# Test ob direktnem zagonu — pošlje test email
+# ---------------------------------------------------------------------------
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
+    if not config.RESEND_API_KEY:
+        print("OPOZORILO: RESEND_API_KEY ni nastavljen v .env — email ne bo poslan.")
+    else:
+        uspeh = pošlji_test_email("spoljar.jan@gmail.com")
+        print(f"Test email poslan: {uspeh}")

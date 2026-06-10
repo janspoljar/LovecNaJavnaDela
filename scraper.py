@@ -32,7 +32,7 @@ KATEGORIJE_KLJUCNE_BESEDE = {
         "vzdrzevanje sistem", "podatkovna", "kibernetsk", "omrezj",
         "racunalnik", "tiskalnik", "kartus", "toner",
     ],
-    "Gradbenistvo": [
+    "Gradbeništvo": [
         "gradnj", "rekonstrukcij", "sanacij", "obnov", "asfalt",
         "kanalizacij", "vodovod", "most", "cest", "fasad", "streh",
         "komunaln", "zemeljsk", "tlakovana", "betonsk", "armatur",
@@ -43,8 +43,8 @@ KATEGORIJE_KLJUCNE_BESEDE = {
         "farmacevtsk", "laboratorij", "resevalno vozil", "bolnisnic",
         "ortopedsk", "implantat", "kirursk",
     ],
-    "Ciscenje & Vzdrzevanje": [
-        "ciscenj", "varovanij", "vzdrzevanje objekt", "komunaln",
+    "Čiščenje & Vzdrževanje": [
+        "ciscenj", "varovanj", "vzdrzevanje objekt", "komunaln",
         "odpadk", "snaga", "dezinfekcij", "razkuzevanj",
     ],
     "Transport & Vozila": [

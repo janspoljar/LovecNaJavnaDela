@@ -1,15 +1,22 @@
 """
-main.py — Glavna vstopna točka za jn-watchdog
-Zažene scraping in pošiljanje alertov po urniku.
+main.py — Glavni orchestrator za jn-watchdog.
+Dnevni job: scraping -> filtriranje po uporabnikih -> pošiljanje emailov.
+
+Zagon:
+    python main.py            # inicializira bazo + scheduler (vsak dan ob 06:00)
+    python main.py --test     # požene dnevni job takoj enkrat
+    python main.py --server   # zažene samo Flask API strežnik
 """
 
-import schedule
+import sys
 import time
 import logging
-from scraper import pridobi_narocila
-from db import inicializiraj_bazo, shrani_narocilo, pridobi_nepozvana_narocila, \
-    oznaci_kot_poslano, pridobi_aktivne_narocnike
-from emailer import posli_vsem_narocnikom
+
+import schedule
+
+import db
+import scraper
+import emailer
 
 logging.basicConfig(
     level=logging.INFO,
@@ -18,53 +25,81 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def scraping_opravilo():
-    """Pridobi nova naročila in jih shrani v bazo."""
-    logger.info("Začenjam scraping...")
-    narocila = pridobi_narocila(max_strani=5)
-    nova = 0
-    for n in narocila:
-        if shrani_narocilo(n):
-            nova += 1
-    logger.info(f"Scraping končan. Shranjenih {nova} novih naročil.")
+def dnevni_job():
+    """
+    Dnevni job:
+    1. Inicializira bazo
+    2. Požene scraper in shrani nova naročila
+    3. Za vsakega aktivnega uporabnika pošlje email z relevantnimi naročili
+    4. Označi poslana naročila in shrani loge
+    5. Izpiše summary
+    """
+    logger.info("=== Začetek dnevnega joba ===")
+
+    # 1. Baza
+    db.init_db()
+
+    # 2. Scraping — pobere in shrani nova naročila
+    novih = scraper.scrape_in_shrani()
+    logger.info(f"Scraping končan, novih naročil: {novih}")
+
+    # 3. Aktivni uporabniki
+    uporabniki = db.poberi_aktivne_uporabnike()
+    logger.info(f"Aktivnih uporabnikov: {len(uporabniki)}")
+
+    poslanih_emailov = 0
+    poslanih_narocil = set()
+
+    # 4. Za vsakega uporabnika: relevantna neposlana naročila -> email -> log
+    for uporabnik in uporabniki:
+        narocila = db.poberi_nova_narocila(uporabnik["kategorije"])
+        if not narocila:
+            logger.info(f"Ni novih naročil za {uporabnik['email']}.")
+            continue
+
+        if emailer.pošlji_email(uporabnik["email"], narocila):
+            poslanih_emailov += 1
+            db.shrani_email_log(uporabnik["id"], len(narocila))
+            # Zberi PJN oznake za kasnejšo označitev
+            for n in narocila:
+                poslanih_narocil.add(n["pjn"])
+        else:
+            logger.error(f"Email za {uporabnik['email']} ni bil poslan.")
+
+    # Označi kot poslano šele po vseh uporabnikih,
+    # da isto naročilo dobijo vsi relevantni uporabniki
+    if poslanih_narocil:
+        db.oznaci_kot_poslano(list(poslanih_narocil))
+
+    # 5. Summary
+    logger.info("=== Summary dnevnega joba ===")
+    logger.info(f"Uporabnikov:        {len(uporabniki)}")
+    logger.info(f"Poslanih emailov:   {poslanih_emailov}")
+    logger.info(f"Naročil v emailih:  {len(poslanih_narocil)}")
+    logger.info(f"Novih iz scraperja: {novih}")
 
 
-def alert_opravilo():
-    """Pošlje tedenske alerte vsem aktivnim naročnikom."""
-    logger.info("Pripravljam tedenske alerte...")
-    narocila = pridobi_nepozvana_narocila()
-    narocniki = pridobi_aktivne_narocnike()
-
-    if not narocniki:
-        logger.info("Ni aktivnih naročnikov.")
-        return
-
-    if not narocila:
-        logger.info("Ni novih naročil za pošiljanje.")
-        return
-
-    posli_vsem_narocnikom(narocniki, narocila)
-
-    # Označi kot poslano
-    for n in narocila:
-        oznaci_kot_poslano(n["id"])
-
-    logger.info(f"Alerti poslani za {len(narocila)} naročil.")
-
-
-if __name__ == "__main__":
-    # Inicializiraj bazo ob zagonu
-    inicializiraj_bazo()
-
-    # Urnik: scraping vsak dan ob 06:00, alerti vsak ponedeljek ob 08:00
-    schedule.every().day.at("06:00").do(scraping_opravilo)
-    schedule.every().monday.at("08:00").do(alert_opravilo)
-
-    logger.info("jn-watchdog zagnan. Čakam na urnik...")
-
-    # Takoj poženi prvi scraping
-    scraping_opravilo()
+def zazeni_scheduler():
+    """Inicializira bazo in zažene scheduler — dnevni job vsak dan ob 06:00."""
+    db.init_db()
+    schedule.every().day.at("06:00").do(dnevni_job)
+    logger.info("Scheduler zagnan — dnevni job ob 06:00. Čakam...")
 
     while True:
         schedule.run_pending()
         time.sleep(60)
+
+
+if __name__ == "__main__":
+    if "--test" in sys.argv:
+        # Testni zagon — požene job takoj enkrat
+        dnevni_job()
+    elif "--server" in sys.argv:
+        # Samo Flask API strežnik
+        import config
+        from server import app
+        db.init_db()
+        app.run(host="0.0.0.0", port=config.PORT)
+    else:
+        # Privzeto: scheduler v neskončni zanki
+        zazeni_scheduler()

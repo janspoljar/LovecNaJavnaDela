@@ -269,6 +269,19 @@ def poberi_aktivne_uporabnike() -> list:
     return vrstice
 
 
+def nastavi_stripe_customer(email: str, customer_id: str):
+    """Shrani Stripe customer ID za podanega uporabnika."""
+    conn = _poveži()
+    cur = conn.cursor()
+    cur.execute(
+        "UPDATE uporabniki SET stripe_customer_id = ? WHERE email = ?",
+        (customer_id, email)
+    )
+    conn.commit()
+    conn.close()
+    logger.info(f"Stripe customer ID nastavljen za: {email}")
+
+
 # ---------------------------------------------------------------------------
 # Email logi
 # ---------------------------------------------------------------------------

@@ -2,6 +2,7 @@ requests
 beautifulsoup4
 lxml
 flask
+flask-cors
 stripe
 resend
 python-dotenv

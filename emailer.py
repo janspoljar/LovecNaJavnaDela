@@ -184,5 +184,5 @@ if __name__ == "__main__":
     if not config.RESEND_API_KEY:
         print("OPOZORILO: RESEND_API_KEY ni nastavljen v .env — email ne bo poslan.")
     else:
-        uspeh = pošlji_test_email("spoljar.jan@gmail.com")
+        uspeh = pošlji_test_email("jan.spoljar@gmail.com")
         print(f"Test email poslan: {uspeh}")

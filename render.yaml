@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: jn-watchdog-server
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py --server
+    healthCheckPath: /zdravje
+
+  - type: worker
+    name: jn-watchdog-worker
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py

@@ -1,7 +1,0 @@
-[build]
-  builder = "nixpacks"
-
-[deploy]
-  healthcheckPath = "/zdravje"
-  healthcheckTimeout = 30
-  restartPolicyType = "on_failure"

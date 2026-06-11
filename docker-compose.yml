@@ -1,0 +1,52 @@
+# docker-compose za jn-watchdog: Flask API + scheduler + Caddy reverse proxy.
+# Skrivnosti pridejo iz .env datoteke poleg te datoteke (ni v repu).
+
+services:
+
+  # Flask API (gunicorn) — registracija, Stripe webhook, odjava, zdravje
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DB_PATH: /data/narocila.db
+    volumes:
+      - db_data:/data
+    expose:
+      - "5000"
+
+  # Dnevni job scheduler — isti image, drug ukaz (main.py, job ob 06:00)
+  scheduler:
+    build: .
+    restart: unless-stopped
+    command: ["python", "main.py"]
+    # Healthcheck iz Dockerfile cilja gunicorn /zdravje — tu ne teče, zato izklop
+    healthcheck:
+      disable: true
+    env_file: .env
+    environment:
+      DB_PATH: /data/narocila.db
+    volumes:
+      - db_data:/data
+
+  # Caddy — reverse proxy z avtomatskim HTTPS (Let's Encrypt)
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      # Domena pride iz .env (DOMAIN=alerti.tvojadomena.si)
+      DOMAIN: ${DOMAIN:-localhost}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+
+volumes:
+  db_data:      # SQLite baza — persistira med rebuildi
+  caddy_data:   # Let's Encrypt certifikati
+  caddy_config:

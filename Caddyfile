@@ -1,0 +1,8 @@
+# Caddyfile — reverse proxy z avtomatskim HTTPS.
+# Domena pride iz env spremenljivke DOMAIN (nastavi v .env na serverju).
+# Za lokalni test: DOMAIN=localhost -> Caddy streže na http brez certifikata.
+
+{$DOMAIN} {
+	encode gzip
+	reverse_proxy app:5000
+}

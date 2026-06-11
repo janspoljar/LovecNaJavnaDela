@@ -21,6 +21,10 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 CORS(app)  # Omogoči CORS za vse origine
 
+# Inicializiraj bazo ob importu — gunicorn ne izvede __main__ bloka,
+# init_db je idempotenten (CREATE TABLE IF NOT EXISTS), zato je klic varen.
+db.init_db()
+
 stripe.api_key = config.STRIPE_SECRET_KEY
 
 # Preprost regex za validacijo email naslova

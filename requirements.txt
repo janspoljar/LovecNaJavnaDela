@@ -7,3 +7,4 @@ stripe
 resend
 python-dotenv
 schedule
+gunicorn

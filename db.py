@@ -13,9 +13,23 @@ logger = logging.getLogger(__name__)
 
 
 def _poveži():
-    """Vrne novo SQLite povezavo z row_factory."""
-    conn = sqlite3.connect(DB_PATH)
+    """
+    Vrne novo SQLite povezavo z row_factory.
+
+    Enoten connection pattern (Faza 2):
+    - WAL mode: bralci ne blokirajo pisca — app (gunicorn) in scheduler
+      delita isto bazo na docker volume.
+    - busy_timeout 10s: ob sočasnem pisanju povezava počaka, namesto
+      da takoj vrže "database is locked".
+    - synchronous=NORMAL: varno v kombinaciji z WAL, hitrejše od FULL.
+    Vse funkcije v tem modulu MORAJO povezavo dobiti izključno tukaj.
+    """
+    conn = sqlite3.connect(DB_PATH, timeout=10)
     conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA busy_timeout=10000")
+    conn.execute("PRAGMA synchronous=NORMAL")
+    conn.execute("PRAGMA foreign_keys=ON")
     return conn
 
 
@@ -285,6 +299,33 @@ def nastavi_stripe_customer(email: str, customer_id: str):
 # ---------------------------------------------------------------------------
 # Email logi
 # ---------------------------------------------------------------------------
+
+def je_email_poslan_danes(uporabnik_id: int, datum: str | None = None) -> bool:
+    """
+    Preveri, ali je bil uporabniku na podani datum email že poslan.
+    Idempotentnost dnevnega joba: dvojni zagon ne sme poslati dvojnih emailov.
+
+    Args:
+        uporabnik_id: ID uporabnika.
+        datum:        Datum v formatu YYYY-MM-DD; privzeto današnji dan.
+
+    Returns:
+        True če log za (uporabnik, datum) že obstaja.
+    """
+    if datum is None:
+        datum = datetime.now().strftime("%Y-%m-%d")
+
+    conn = _poveži()
+    cur = conn.cursor()
+    # datum_poslanega je ISO timestamp — date() iz njega izlušči YYYY-MM-DD
+    cur.execute(
+        "SELECT 1 FROM email_logi WHERE uporabnik_id = ? AND date(datum_poslanega) = ? LIMIT 1",
+        (uporabnik_id, datum),
+    )
+    obstaja = cur.fetchone() is not None
+    conn.close()
+    return obstaja
+
 
 def shrani_email_log(uporabnik_id: int, stevilo: int):
     """

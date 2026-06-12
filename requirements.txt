@@ -8,3 +8,4 @@ resend
 python-dotenv
 schedule
 gunicorn
+boto3

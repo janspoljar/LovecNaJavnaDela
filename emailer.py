@@ -144,6 +144,65 @@ def pošlji_email(uporabnik_email: str, narocila: list) -> bool:
         return False
 
 
+def _pošlji_admin(zadeva: str, html: str) -> bool:
+    """Pošlje email adminu (config.ADMIN_EMAIL). Vrne True ob uspehu."""
+    try:
+        resend.Emails.send({
+            "from": config.FROM_EMAIL,
+            "to": config.ADMIN_EMAIL,
+            "subject": zadeva,
+            "html": html,
+        })
+        return True
+    except Exception as e:
+        logger.error(f"Napaka pri pošiljanju admin emaila: {e}")
+        return False
+
+
+def pošlji_alert_adminu(naslov: str, podrobnosti: str) -> bool:
+    """
+    Alert adminu ob kritični napaki (npr. popoln fail scraperja).
+    """
+    html = (
+        "<html><body style='font-family: Arial; color: #333;'>"
+        f"<h2 style='color: #d93025;'>⚠️ {naslov}</h2>"
+        f"<pre style='background: #f5f5f5; padding: 12px; white-space: pre-wrap;'>{podrobnosti}</pre>"
+        f"<p><small>Lovec — {datetime.now().strftime('%d. %m. %Y %H:%M')}</small></p>"
+        "</body></html>"
+    )
+    return _pošlji_admin(f"⚠️ Lovec ALERT: {naslov}", html)
+
+
+def pošlji_dnevni_povzetek(stats: dict) -> bool:
+    """
+    Dnevni povzetek joba adminu.
+
+    Args:
+        stats: {"scraped": int, "novih": int, "poslanih_emailov": int,
+                "preskocenih": int, "napake": list[str]}
+    """
+    danes = datetime.now().strftime("%d. %m. %Y")
+    napake = stats.get("napake") or []
+    napake_html = (
+        "<ul>" + "".join(f"<li>{n}</li>" for n in napake) + "</ul>"
+        if napake else "<p>Brez napak. ✓</p>"
+    )
+    html = (
+        "<html><body style='font-family: Arial; color: #333;'>"
+        f"<h2>Lovec — dnevni povzetek {danes}</h2>"
+        "<table cellpadding='6' style='border-collapse: collapse;'>"
+        f"<tr><td>Pobranih naročil (scrape):</td><td><strong>{stats.get('scraped', 0)}</strong></td></tr>"
+        f"<tr><td>Novih v bazi:</td><td><strong>{stats.get('novih', 0)}</strong></td></tr>"
+        f"<tr><td>Poslanih emailov:</td><td><strong>{stats.get('poslanih_emailov', 0)}</strong></td></tr>"
+        f"<tr><td>Preskočenih (že poslano danes):</td><td><strong>{stats.get('preskocenih', 0)}</strong></td></tr>"
+        f"<tr><td>Napak:</td><td><strong>{len(napake)}</strong></td></tr>"
+        "</table>"
+        f"<h3>Napake</h3>{napake_html}"
+        "</body></html>"
+    )
+    return _pošlji_admin(f"Lovec povzetek {danes}: {stats.get('poslanih_emailov', 0)} emailov, {len(napake)} napak", html)
+
+
 def pošlji_test_email(email: str) -> bool:
     """
     Pošlje testni email s 3 dummy naročili — za preverbo Resend integracije.

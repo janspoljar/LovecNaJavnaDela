@@ -51,8 +51,8 @@ server, preden zaženeš compose, sicer Let's Encrypt izziv ne uspe.
 
 ```
 ssh deploy@<IP>
-git clone https://github.com/janspoljar/jn-watchdog.git /opt/jn-watchdog
-cd /opt/jn-watchdog
+git clone https://github.com/janspoljar/LovecNaJavnaDela.git /opt/lovec
+cd /opt/lovec
 cp .env.example .env
 nano .env
 ```
@@ -109,15 +109,52 @@ Obstoječo bazo skopiraš noter takole:
 ```
 scp narocila.db deploy@<IP>:/tmp/narocila.db
 ssh deploy@<IP>
-docker compose -f /opt/jn-watchdog/docker-compose.yml cp /tmp/narocila.db app:/data/narocila.db
-docker compose -f /opt/jn-watchdog/docker-compose.yml restart app scheduler
+docker compose -f /opt/lovec/docker-compose.yml cp /tmp/narocila.db app:/data/narocila.db
+docker compose -f /opt/lovec/docker-compose.yml restart app scheduler
 rm /tmp/narocila.db
+```
+
+## 8. Nočni backup (Faza 2)
+
+1. Ustvari S3-kompatibilen bucket — Hetzner Cloud Console → Object Storage →
+   Create Bucket (npr. `lovec-backups`, lokacija Falkenstein) → ustvari
+   S3 credentials (Access Key + Secret Key).
+2. Na serverju dopolni `/opt/lovec/.env`:
+
+```
+S3_ENDPOINT_URL=https://fsn1.your-objectstorage.com
+S3_BUCKET=lovec-backups
+S3_ACCESS_KEY_ID=...
+S3_SECRET_ACCESS_KEY=...
+S3_REGION=eu-central-1
+BACKUP_RETENTION_DAYS=30
+ADMIN_EMAIL=jan.spoljar@gmail.com
+```
+
+3. Restartaj containerje in dodaj host cron (kot deploy uporabnik):
+
+```
+docker compose up -d
+crontab -e
+```
+
+V crontab dodaj (backup vsako noč ob 02:30):
+
+```
+30 2 * * * cd /opt/lovec && docker compose exec -T app python -m scripts.backup >> /home/deploy/backup.log 2>&1
+```
+
+4. Ročni test backupa in restora:
+
+```
+docker compose exec app python -m scripts.backup
+docker compose stop app scheduler
+docker compose run --rm app python -m scripts.restore
+docker compose up -d
 ```
 
 ## Opombe
 
-- `render.yaml` ni več potreben (selitev z Render/Railway) — pobrišeš ga
-  lahko, ko potrdiš, da Hetzner deploy dela.
 - Scheduler servis požene dnevni job ob **06:00 po času containerja (UTC)** —
   to je 07:00/08:00 SLO. Uskladitev urnika pride v Fazi 2/3.
 - Stripe ključi niso potrebni za zagon — endpointi obstajajo, aktivirajo se

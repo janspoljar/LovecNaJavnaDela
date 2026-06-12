@@ -66,7 +66,7 @@ runcmd:
   # fail2ban
   - systemctl enable --now fail2ban
   # Mapa za aplikacijo
-  - mkdir -p /opt/jn-watchdog
-  - chown deploy:deploy /opt/jn-watchdog
+  - mkdir -p /opt/lovec
+  - chown deploy:deploy /opt/lovec
 
-final_message: "jn-watchdog server pripravljen. Prijava: ssh deploy@<IP>"
+final_message: "Lovec server pripravljen. Prijava: ssh deploy@<IP>"

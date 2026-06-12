@@ -23,8 +23,14 @@ BASE_URL = "https://ejn.gov.si/ponudba/pages/aktualno/aktualna_javna_narocila.xh
 FORM_ID = "iskalnik_aktualnih_jn_data_table_form"
 TABLE_ID = f"{FORM_ID}:iskalnik_aktualnih_jn_data_table:iskalnik_aktualnih_jn_data_table"
 
+# Razumen, transparenten User-Agent s kontaktom (Faza 2)
+USER_AGENT = "LovecBot/1.0 (alerti za javna narocila; kontakt: jan.spoljar@gmail.com)"
+
+# Delay med paginacijskimi requesti — prijaznost do strežnika
+REQUEST_DELAY_S = 1.5
+
 HEADERS_GET = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    "User-Agent": USER_AGENT,
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "Accept-Language": "sl,en-US;q=0.7,en;q=0.3",
 }
@@ -202,7 +208,7 @@ def poberi_narocila(max_strani: int = 33) -> list:
             videni_pjn.add(n["pjn"])
 
         logger.info(f"Stran {stran+1}: {len(novi)} novih (skupaj: {len(narocila)})")
-        time.sleep(0.3)  # Bodi prijazen do strežnika
+        time.sleep(REQUEST_DELAY_S)  # Bodi prijazen do strežnika
 
     return narocila
 

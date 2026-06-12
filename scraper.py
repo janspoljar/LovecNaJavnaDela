@@ -29,6 +29,10 @@ USER_AGENT = "LovecBot/1.0 (alerti za javna narocila; kontakt: jan.spoljar@gmail
 # Delay med paginacijskimi requesti — prijaznost do strežnika
 REQUEST_DELAY_S = 1.5
 
+# Timeout za HTTP requeste — brez tega bi job ob viseči povezavi obvisel
+# v nedogled in retry logika se sploh ne bi sprožila
+HTTP_TIMEOUT_S = 30
+
 HEADERS_GET = {
     "User-Agent": USER_AGENT,
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -150,7 +154,7 @@ def poberi_narocila(max_strani: int = 33) -> list:
     session = requests.Session()
 
     # Prva stran GET — iz nje poberemo tudi ViewState za paginacijo
-    r = session.get(BASE_URL, headers=HEADERS_GET)
+    r = session.get(BASE_URL, headers=HEADERS_GET, timeout=HTTP_TIMEOUT_S)
     soup = BeautifulSoup(r.text, "html.parser")
     viewstate = soup.find("input", {"name": "javax.faces.ViewState"})["value"]
 
@@ -184,7 +188,7 @@ def poberi_narocila(max_strani: int = 33) -> list:
             "javax.faces.ViewState": viewstate,
         }
 
-        r = session.post(BASE_URL, headers=HEADERS_POST, data=post_data)
+        r = session.post(BASE_URL, headers=HEADERS_POST, data=post_data, timeout=HTTP_TIMEOUT_S)
 
         # Posodobi ViewState iz XML odgovora
         xml_soup = BeautifulSoup(r.text, "lxml-xml")

@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-{% block naslov %}Registracija — Lovec{% endblock %}
+{% block naslov %}Registracija — javna-narocila.si{% endblock %}
 
 {% block vsebina %}
 <section>
 <div class="ovoj ozko">
     <span class="znacka">Med beto brezplačno</span>
-    <h1>Začnite z Lovcem</h1>
+    <h1>Začnite spremljati razpise</h1>
     <p class="vodilo">
         Opišite dejavnost, izberite paket in potrdite email — alerti začnejo
         prihajati takoj.
@@ -31,7 +31,7 @@
             <select name="panoga" id="panoga" required>
                 <option value="" disabled {% if not panoga %}selected{% endif %}>— izberite panogo —</option>
                 {% for kljuc, p in panoge.items() %}
-                <option value="{{ kljuc }}" {% if panoga == kljuc %}selected{% endif %}>{{ p.ikona }} {{ p.ime }}</option>
+                <option value="{{ kljuc }}" {% if panoga == kljuc %}selected{% endif %}>{{ p.ime }}</option>
                 {% endfor %}
             </select>
         </div>

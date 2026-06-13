@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block naslov %}Brezplačni pregled — Lovec{% endblock %}
+{% block naslov %}Brezplačni pregled — javna-narocila.si{% endblock %}
 
 {% block vsebina %}
 <section>
@@ -19,7 +19,7 @@
             <select name="panoga" id="panoga" required>
                 <option value="" disabled {% if not panoga %}selected{% endif %}>— izberite panogo —</option>
                 {% for kljuc, p in panoge.items() %}
-                <option value="{{ kljuc }}" {% if panoga == kljuc %}selected{% endif %}>{{ p.ikona }} {{ p.ime }}</option>
+                <option value="{{ kljuc }}" {% if panoga == kljuc %}selected{% endif %}>{{ p.ime }}</option>
                 {% endfor %}
             </select>
         </div>

@@ -1,5 +1,5 @@
 """
-server.py — Flask strežnik za Lovec (jn-watchdog).
+server.py — Flask strežnik za javna-narocila.si (jn-watchdog).
 
 Faza 4 doda javne strani (landing, brezplačni pregled, registracija z double
 opt-in, politika zasebnosti) ob obstoječih API endpointih (Stripe webhook,

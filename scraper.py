@@ -24,7 +24,7 @@ FORM_ID = "iskalnik_aktualnih_jn_data_table_form"
 TABLE_ID = f"{FORM_ID}:iskalnik_aktualnih_jn_data_table:iskalnik_aktualnih_jn_data_table"
 
 # Razumen, transparenten User-Agent s kontaktom (Faza 2)
-USER_AGENT = "LovecBot/1.0 (alerti za javna narocila; kontakt: jan.spoljar@gmail.com)"
+USER_AGENT = "javna-narocila.si bot/1.0 (alerti za javna narocila; kontakt: jan.spoljar@gmail.com)"
 
 # Delay med paginacijskimi requesti — prijaznost do strežnika
 REQUEST_DELAY_S = 1.5

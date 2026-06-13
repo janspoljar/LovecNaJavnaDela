@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block naslov %}Odjava — Lovec{% endblock %}
+{% block naslov %}Odjava — javna-narocila.si{% endblock %}
 
 {% block vsebina %}
 <section>
@@ -8,7 +8,7 @@
         <h1 style="font-size:30px;">Uspešno odjavljeni</h1>
         {% if email %}
         <p class="vodilo" style="margin:0 auto;">
-            Naslov <strong>{{ email }}</strong> ne bo več prejemal obvestil Lovca. Žal nam je, da odhajate.
+            Naslov <strong>{{ email }}</strong> ne bo več prejemal naših obvestil. Žal nam je, da odhajate.
         </p>
         {% else %}
         <p class="vodilo" style="margin:0 auto;">Odjava je zaključena.</p>

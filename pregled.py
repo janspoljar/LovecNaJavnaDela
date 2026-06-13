@@ -131,7 +131,7 @@ def sestavi_html_pregled(panoga_ime: str, narocila: list, dni: int = 30) -> str:
             {vrstice}
         </table>
         <p style="margin-top: 24px; padding: 16px; background: #f0f4ff; border-radius: 8px;">
-            To je le pregled zadnjega meseca. Z naročnino <strong>Lovec</strong> jih
+            To je le pregled zadnjega meseca. Z naročnino na <strong>javna-narocila.si</strong> jih
             prejemate samodejno na email, takoj ko izidejo — nikoli več zamujenega razpisa.
         </p>
         """
@@ -146,7 +146,7 @@ def sestavi_html_pregled(panoga_ime: str, narocila: list, dni: int = 30) -> str:
         {vsebina}
         <hr style="margin-top: 32px; border: none; border-top: 1px solid #ddd;">
         <p style="font-size: 12px; color: #999;">
-            Pregled vam je poslal Lovec — alerti o javnih naročilih.<br>
+            Pregled vam je poslal javna-narocila.si — alerti o javnih naročilih.<br>
             Prejeli ste ga, ker ste oddali zahtevo za brezplačni pregled na javna-narocila.si.
         </p>
     </body>

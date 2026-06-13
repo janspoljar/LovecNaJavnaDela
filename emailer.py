@@ -36,20 +36,6 @@ def _zapisi_dry_run(prejemnik: str, zadeva: str, html: str):
         )
     logger.info(f"[DRY-RUN] Email za {prejemnik} zapisan v {DRY_RUN_FILE}")
 
-# Ikone za posamezne kategorije (za prikaz v emailu)
-KATEGORIJE_IKONE = {
-    "IT & Software": "💻",
-    "Gradbeništvo": "🏗️",
-    "Zdravstvo & Farmacija": "🏥",
-    "Čiščenje & Vzdrževanje": "🧹",
-    "Transport & Vozila": "🚌",
-    "Energetika": "⚡",
-    "Hrana & Catering": "🍎",
-    "Okolje & Voda": "💧",
-    "Obramba & Varnost": "🛡️",
-    "Drugo": "📌",
-}
-
 # Bazni URL za direktne linke na naročila
 EJN_URL = "https://ejn.gov.si"
 
@@ -96,10 +82,9 @@ def _sestavi_html(uporabnik_email: str, narocila: list) -> str:
 
     # Sekcija za vsako kategorijo
     for kategorija, seznam in sorted(skupine.items()):
-        ikona = KATEGORIJE_IKONE.get(kategorija, "📌")
         html += f"""
         <h3 style="background: #f0f4ff; padding: 8px 12px; border-radius: 6px; margin-top: 24px;">
-            {ikona} {kategorija} ({len(seznam)})
+            {kategorija} ({len(seznam)})
         </h3>
         <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
         """
@@ -123,7 +108,7 @@ def _sestavi_html(uporabnik_email: str, narocila: list) -> str:
     html += f"""
         <hr style="margin-top: 32px; border: none; border-top: 1px solid #ddd;">
         <p style="font-size: 12px; color: #999;">
-            Prejemate ta email, ker ste naročeni na Lovec — alerte o javnih naročilih.<br>
+            Prejemate ta email, ker ste naročeni na javna-narocila.si — alerte o javnih naročilih.<br>
             <a href="{config.BASE_URL}/odjava?email={uporabnik_email}" style="color: #999;">Odjava od obvestil</a>
         </p>
     </body>
@@ -151,14 +136,14 @@ def pošlji_email(uporabnik_email: str, narocila: list) -> bool:
     html = _sestavi_html(uporabnik_email, narocila)
 
     if DRY_RUN:
-        _zapisi_dry_run(uporabnik_email, f"📋 {len(narocila)} novih javnih naročil — {danes}", html)
+        _zapisi_dry_run(uporabnik_email, f"{len(narocila)} novih javnih naročil — {danes}", html)
         return True
 
     try:
         odgovor = resend.Emails.send({
             "from": config.FROM_EMAIL,
             "to": uporabnik_email,
-            "subject": f"📋 {len(narocila)} novih javnih naročil — {danes}",
+            "subject": f"{len(narocila)} novih javnih naročil — {danes}",
             "html": html,
         })
         logger.info(f"Email poslan na {uporabnik_email}: {odgovor}")
@@ -193,12 +178,12 @@ def pošlji_alert_adminu(naslov: str, podrobnosti: str) -> bool:
     """
     html = (
         "<html><body style='font-family: Arial; color: #333;'>"
-        f"<h2 style='color: #d93025;'>⚠️ {naslov}</h2>"
+        f"<h2 style='color: #d93025;'>{naslov}</h2>"
         f"<pre style='background: #f5f5f5; padding: 12px; white-space: pre-wrap;'>{podrobnosti}</pre>"
-        f"<p><small>Lovec — {datetime.now().strftime('%d. %m. %Y %H:%M')}</small></p>"
+        f"<p><small>javna-narocila.si — {datetime.now().strftime('%d. %m. %Y %H:%M')}</small></p>"
         "</body></html>"
     )
-    return _pošlji_admin(f"⚠️ Lovec ALERT: {naslov}", html)
+    return _pošlji_admin(f"javna-narocila.si ALERT: {naslov}", html)
 
 
 def pošlji_dnevni_povzetek(stats: dict) -> bool:
@@ -213,11 +198,11 @@ def pošlji_dnevni_povzetek(stats: dict) -> bool:
     napake = stats.get("napake") or []
     napake_html = (
         "<ul>" + "".join(f"<li>{n}</li>" for n in napake) + "</ul>"
-        if napake else "<p>Brez napak. ✓</p>"
+        if napake else "<p>Brez napak.</p>"
     )
     html = (
         "<html><body style='font-family: Arial; color: #333;'>"
-        f"<h2>Lovec — dnevni povzetek {danes}</h2>"
+        f"<h2>javna-narocila.si — dnevni povzetek {danes}</h2>"
         "<table cellpadding='6' style='border-collapse: collapse;'>"
         f"<tr><td>Pobranih naročil (scrape):</td><td><strong>{stats.get('scraped', 0)}</strong></td></tr>"
         f"<tr><td>Novih v bazi:</td><td><strong>{stats.get('novih', 0)}</strong></td></tr>"
@@ -228,7 +213,7 @@ def pošlji_dnevni_povzetek(stats: dict) -> bool:
         f"<h3>Napake</h3>{napake_html}"
         "</body></html>"
     )
-    return _pošlji_admin(f"Lovec povzetek {danes}: {stats.get('poslanih_emailov', 0)} emailov, {len(napake)} napak", html)
+    return _pošlji_admin(f"javna-narocila.si povzetek {danes}: {stats.get('poslanih_emailov', 0)} emailov, {len(napake)} napak", html)
 
 
 def _poslji_html(prejemnik: str, zadeva: str, html: str) -> bool:
@@ -267,7 +252,7 @@ def pošlji_potrditev(email: str, potrditveni_url: str) -> bool:
         "<html><body style='font-family: Arial, sans-serif; max-width: 640px; "
         "margin: 0 auto; padding: 20px; color: #333;'>"
         "<h2 style='color: #1a1a2e;'>Potrdite svojo prijavo</h2>"
-        "<p>Hvala za prijavo na <strong>Lovec</strong> — alerte o javnih naročilih.</p>"
+        "<p>Hvala za prijavo na <strong>javna-narocila.si</strong> — alerte o javnih naročilih.</p>"
         "<p>Za zaključek prijave kliknite spodnji gumb:</p>"
         f"<p style='margin: 28px 0;'><a href='{potrditveni_url}' "
         "style='background: #1a73e8; color: #fff; padding: 12px 24px; "
@@ -279,7 +264,7 @@ def pošlji_potrditev(email: str, potrditveni_url: str) -> bool:
         "<p style='font-size: 12px; color: #999;'>Če se niste prijavili vi, ta email preprosto prezrite.</p>"
         "</body></html>"
     )
-    return _poslji_html(email, "Potrdite prijavo na Lovec", html)
+    return _poslji_html(email, "Potrdite prijavo na javna-narocila.si", html)
 
 
 def pošlji_test_email(email: str) -> bool:

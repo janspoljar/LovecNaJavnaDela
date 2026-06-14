@@ -245,9 +245,10 @@ def racun():
     profili = db.poberi_profile_uporabnika(uid)
     meja = config.PAKET_MEJA_PROFILOV.get(uporabnik.get("paket") or "osnovni", 1)
     lahko_doda = (meja is None) or (len(profili) < meja)
+    povzetek = db.povzetek_uporabnika(uid)
     return render_template(
         "racun.html", uporabnik=uporabnik, profili=profili,
-        panoge=panoge.PANOGE, meja=meja, lahko_doda=lahko_doda,
+        panoge=panoge.PANOGE, meja=meja, lahko_doda=lahko_doda, povzetek=povzetek,
     )
 
 

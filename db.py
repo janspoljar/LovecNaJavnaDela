@@ -872,6 +872,25 @@ def poberi_profile_uporabnika(uporabnik_id: int) -> list:
     return vrstice
 
 
+def povzetek_uporabnika(uporabnik_id: int) -> dict:
+    """
+    Vrne kratke števce za nadzorno ploščo: število ujemajočih naročil
+    (relevantna, confidence >= prag morda, čez vse profile) in število
+    uporabniku že poslanih naročil.
+    """
+    conn = _poveži()
+    ujemanj = conn.execute("""
+        SELECT COUNT(DISTINCT m.pjn)
+        FROM matching m JOIN profili p ON p.id = m.profil_id
+        WHERE p.uporabnik_id = ? AND m.relevant = 1 AND m.confidence >= ?
+    """, (uporabnik_id, config.MATCH_PRAG_MORDA)).fetchone()[0]
+    poslanih = conn.execute(
+        "SELECT COUNT(*) FROM poslano_userju WHERE uporabnik_id = ?", (uporabnik_id,)
+    ).fetchone()[0]
+    conn.close()
+    return {"ujemanj": ujemanj, "poslanih": poslanih}
+
+
 def aktivnih_profilov(uporabnik_id: int) -> int:
     """Število aktivnih profilov uporabnika (za mejo paketa)."""
     conn = _poveži()

@@ -1,0 +1,15 @@
+<svg width="220" height="34" viewBox="0 0 220 34" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Javna naročila.si">
+  <defs>
+    <linearGradient id="jnMarkH" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4f8bf0"></stop>
+      <stop offset="1" stop-color="#1e40af"></stop>
+    </linearGradient>
+  </defs>
+  <rect width="34" height="34" rx="10" fill="url(#jnMarkH)"></rect>
+  <g transform="translate(17 17)" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle r="9"></circle>
+    <circle r="4.5"></circle>
+    <circle r="1" fill="#fff" stroke="none"></circle>
+  </g>
+  <text x="45" y="23" font-family="Inter, -apple-system, BlinkMacSystemFont, &#39;Segoe UI&#39;, Roboto, sans-serif" font-size="18" font-weight="750" letter-spacing="-0.36" fill="#0f172a">Javna naročila<tspan fill="#2563eb">.si</tspan></text>
+</svg>

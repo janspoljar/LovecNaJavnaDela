@@ -1,0 +1,14 @@
+<svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Javna naročila.si">
+  <defs>
+    <linearGradient id="jn-mark" x1="4" y1="2" x2="30" y2="32" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4f8bf0"></stop>
+      <stop offset="1" stop-color="#1e40af"></stop>
+    </linearGradient>
+  </defs>
+  <rect width="34" height="34" rx="10" fill="url(#jn-mark)"></rect>
+  <g stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <circle cx="17" cy="17" r="9"></circle>
+    <circle cx="17" cy="17" r="4.5"></circle>
+  </g>
+  <circle cx="17" cy="17" r="1.6" fill="#fff"></circle>
+</svg>

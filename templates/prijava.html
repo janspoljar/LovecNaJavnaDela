@@ -1,22 +1,22 @@
 {% extends "base.html" %}
-{% block naslov %}Prijava — javna-narocila.si{% endblock %}
+{% block naslov %}Prijava — Javna naročila.si{% endblock %}
 
 {% block vsebina %}
 <section>
 <div class="ovoj ozko">
+    <span class="znacka">Prijava brez gesla</span>
     <h1>Prijava</h1>
-    <p class="vodilo">Vpišite svoj email — poslali vam bomo povezavo za prijavo. Brez gesla.</p>
+    <p class="vodilo">Vpišite svoj email. Poslali vam bomo varno povezavo za prijavo.</p>
 
     {% if napaka %}<div class="opozorilo" style="margin-top:24px;">{{ napaka }}</div>{% endif %}
 
     <form method="post" action="/prijava" style="margin-top:28px;">
         <div class="polje">
-            <label for="email">Email</label>
-            <input type="email" name="email" id="email" placeholder="ime@podjetje.si" required>
+            <label for="email">Vaš email</label>
+            <input type="email" name="email" id="email" class="field" placeholder="ime@podjetje.si" required>
         </div>
-        <button type="submit" class="gumb">Pošlji prijavno povezavo</button>
+        <button type="submit" class="gumb poln">Pošlji povezavo za prijavo</button>
     </form>
-
     <p class="drobno" style="margin-top:16px;">Še nimate računa? <a href="/registracija">Registracija</a>.</p>
 </div>
 </section>

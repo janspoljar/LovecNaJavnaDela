@@ -1,0 +1,1448 @@
+/* ============================================================
+   FONTS — Editorial Ledger type system
+   · Newsreader  — display serif (editorial headlines, italic accents)
+   · Inter       — UI / body grotesque (excellent Slovenian glyphs)
+   · IBM Plex Mono — data + small uppercase section labels (ledger feel)
+   All three carry full Latin-Extended (č š ž đ) for Slovenian.
+   SUBSTITUTION FLAG: for production, self-host these as .woff2 to drop the
+   third-party request. Newsreader/Inter/Plex Mono are all SIL OFL.
+   ============================================================ */
+@import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap");
+/* ==========================================================================
+   Colors — "Editorial Ledger"
+   Warm paper · warm near-black ink · ONE deep pine-green accent (links,
+   signals, the match indicator, the logo mark). Brick red is reserved for
+   submission deadlines (rok). No blue, no glows.
+
+   Token NAMES are kept verbatim from the product (--brand, --soft-blue …) so
+   this file stays a drop-in for the Flask/Jinja CSS; only the VALUES change.
+   ========================================================================== */
+
+:root {
+  /* --- Accent: deep pine green (the single signature colour) --- */
+  --brand: #1c5440; /* primary accent — links, marks, active states */
+  --brand-dark: #15402f; /* hover / pressed accent */
+  --brand-700: #103324; /* deepest — accent text on pale sage */
+
+  /* --- Ink: warm near-black (text, primary buttons, dark blocks) --- */
+  --ink: #1a1613;
+  --ink-2: #544e46; /* body text */
+  --muted: #8b8478; /* captions, meta, secondary */
+
+  /* --- Surfaces & hairlines (warm paper) --- */
+  --paper: #f4efe4; /* page background */
+  --white: #ffffff; /* framed panels / cards layered on paper */
+  --soft: #ece5d7; /* alternating section band */
+  --soft-blue: #e6ede6; /* pale SAGE accent wash (token name kept) */
+  --line: #ddd6c6; /* default 1px hairline */
+  --line-2: #e7e0d2; /* faint divider */
+
+  /* --- Semantic: match / success (shares the brand green) --- */
+  --ok: #1c5440;
+  --ok-700: #15402f;
+  --ok-soft: #e6ede6;
+
+  /* --- Semantic: deadline / danger (brick red) --- */
+  --rok: #b23b2e;
+  --rok-soft: #f3e6e1;
+  --rok-line: #e2c2b8;
+
+  /* --- Link --- */
+  --link: var(--brand);
+}
+/* ==========================================================================
+   Typography — Editorial Ledger
+   Serif display (Newsreader) for headlines; Inter for UI/body; IBM Plex Mono
+   for data and small uppercase section labels. Sharp, deliberate scale jumps.
+   Non-px font tokens carry @kind font so the compiler classifies them.
+   ========================================================================== */
+
+:root {
+  /* --- Families --- */
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif; /* @kind font */
+  --font-serif: "Newsreader", Georgia, "Times New Roman", serif; /* @kind font */
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace; /* @kind font */
+
+  /* --- Type scale (px) --- */
+  --fs-12: 12px;
+  --fs-13: 13px;
+  --fs-14: 14px;
+  --fs-15: 15px;
+  --fs-16: 16px;
+  --fs-17: 17px;
+  --fs-18: 18px;
+  --fs-19: 19px; /* lead paragraph (.vodilo) */
+  --fs-20: 20px;
+  --fs-22: 22px;
+  --fs-26: 26px;
+  --fs-44: 44px; /* metric / price figure */
+
+  /* --- Fluid display sizes (serif) --- */
+  --fs-h1: clamp(40px, 5.6vw, 66px); /* @kind font */
+  --fs-h2: clamp(28px, 3.6vw, 42px); /* @kind font */
+
+  /* --- Mono label --- */
+  --fs-label: 12px;
+  --ls-label: 0.16em; /* @kind font */
+
+  /* --- Weights --- */
+  --fw-regular: 400; /* @kind font */
+  --fw-medium: 500; /* @kind font */
+  --fw-mid: 500; /* @kind font */
+  --fw-semibold: 600; /* @kind font */
+  --fw-button: 600; /* @kind font */
+  --fw-bold: 700; /* @kind font */
+  --fw-heavy: 600; /* @kind font */
+  --fw-black: 600; /* @kind font */
+
+  /* --- Line heights --- */
+  --lh-tight: 1.03; /* @kind font */
+  --lh-heading: 1.1; /* @kind font */
+  --lh-body: 1.62; /* @kind font */
+  --lh-lead: 1.55; /* @kind font */
+
+  /* --- Letter spacing --- */
+  --ls-h1: -0.021em; /* @kind font */
+  --ls-h2: -0.016em; /* @kind font */
+  --ls-h3: -0.005em; /* @kind font */
+  --ls-wm: -0.02em; /* @kind font */
+}
+/* ==========================================================================
+   Spacing · Radii · Layout — Editorial Ledger
+   Sharper radii than typical SaaS (4–10px), generous editorial whitespace,
+   ~1120px container with a narrower measure for running text.
+   ========================================================================== */
+
+:root {
+  /* --- Spacing scale (~4px rhythm) --- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 14px;
+  --sp-5: 16px;
+  --sp-6: 18px;
+  --sp-7: 22px;
+  --sp-8: 24px;
+  --sp-9: 28px;
+  --sp-10: 32px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+  --sp-section: clamp(64px, 8vw, 104px); /* @kind spacing */
+
+  /* --- Radii (crisp, editorial) --- */
+  --radius-sm: 4px;
+  --radius-md: 6px; /* buttons, inputs, chips */
+  --radius-lg: 10px; /* cards, panels */
+  --radius-xl: 14px; /* large framed blocks */
+  --radius-pill: 999px; /* avatar / status dot only */
+
+  /* --- Layout --- */
+  --container: 1120px;
+  --container-pad: 28px;
+  --content-narrow: 640px; /* forms */
+  --measure: 60ch; /* running-text max width */
+  --content-lead: 56ch; /* lead paragraph */
+}
+/* ==========================================================================
+   Shadows — Editorial Ledger
+   Structure comes from hairline borders, NOT shadows. Shadows are reserved
+   for genuinely floating things (the hero product panel). Buttons, cards and
+   tiles are flat — they shift border/background on interaction instead.
+   ========================================================================== */
+
+:root {
+  /* Near-flat resting elevation (cards barely separate from paper) */
+  --shadow-rest: 0 1px 2px rgba(26, 22, 19, 0.03);
+  --shadow-soft: 0 1px 3px rgba(26, 22, 19, 0.05);
+
+  /* Interaction is border-driven, so "hover" shadow stays minimal */
+  --shadow-hover: 0 1px 2px rgba(26, 22, 19, 0.05);
+
+  /* Flat buttons / tiles */
+  --shadow-btn: none;
+  --shadow-btn-hover: none;
+  --shadow-mark: none;
+  --shadow-inset-top: none;
+
+  /* The one real elevation: the floating hero "inbox" panel */
+  --shadow-panel: 0 1px 0 rgba(26, 22, 19, 0.04),
+    0 40px 80px -54px rgba(26, 22, 19, 0.5);
+
+  /* Featured pricing column (inverted) — its own depth */
+  --shadow-featured: 0 30px 60px -44px rgba(26, 22, 19, 0.55);
+
+  /* Focus ring — green */
+  --ring-focus: 0 0 0 3px rgba(28, 84, 64, 0.18);
+}
+/* ==========================================================================
+   Motion — Editorial Ledger
+   Restrained. Micro-interactions are colour/opacity/underline shifts on a
+   200–280ms expo-out curve. No card lifts, no shimmer; press settles subtly.
+   Always respect reduced motion.
+   ========================================================================== */
+
+:root {
+  --ease: cubic-bezier(0.16, 1, 0.3, 1); /* @kind other */
+  --dur-fast: 0.15s; /* @kind other */
+  --dur: 0.22s; /* @kind other */
+  --dur-slow: 0.28s; /* @kind other */
+  --dur-reveal: 0.5s; /* @kind other */
+
+  /* Lifts are off in this language — structure is flat. */
+  --lift: 0px; /* @kind other */
+  --lift-card: 0px; /* @kind other */
+  --press: 0.99; /* @kind other */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0s; /* @kind other */
+    --dur: 0s; /* @kind other */
+    --dur-slow: 0s; /* @kind other */
+    --dur-reveal: 0s; /* @kind other */
+    --press: 1; /* @kind other */
+  }
+}
+/* ==========================================================================
+   Base — minimal element resets so tokens render faithfully. Class-level
+   component CSS lives with the product/UI kit, not here.
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--fs-16);
+  line-height: var(--lh-body);
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1;
+}
+
+a {
+  color: var(--link);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+::selection {
+  background: var(--brand);
+  color: var(--paper);
+}
+
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+/* ==========================================================================
+   Component layer — "Editorial Ledger"
+   The product's Slovenian class names (.gumb, .karta, .znacka …) are kept
+   verbatim so this stays a true drop-in for the Flask/Jinja backend; only the
+   styling is reworked. Flat surfaces, hairline structure, ink + pine-green.
+   ========================================================================== */
+
+/* ---- Layout helpers ---- */
+.ovoj {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 var(--container-pad);
+}
+.ozko {
+  max-width: var(--content-narrow);
+}
+.soft-bg {
+  background: var(--soft);
+}
+.sredina {
+  text-align: center;
+}
+
+/* ---- Buttons (.gumb) — primary is INK, not accent ---- */
+.gumb {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  background: var(--ink);
+  color: var(--paper);
+  padding: 13px 22px;
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-weight: var(--fw-button);
+  font-size: var(--fs-15);
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+  border: 1px solid var(--ink);
+  cursor: pointer;
+  transition: background var(--dur) var(--ease),
+    border-color var(--dur) var(--ease), color var(--dur) var(--ease),
+    transform var(--dur-fast) var(--ease);
+  text-decoration: none;
+}
+.gumb:hover {
+  background: #322c26;
+  border-color: #322c26;
+  color: var(--paper);
+  text-decoration: none;
+}
+.gumb:active {
+  transform: translateY(0) scale(var(--press));
+}
+/* arrow nudge for buttons that carry a trailing → */
+.gumb .arr {
+  transition: transform var(--dur) var(--ease);
+}
+.gumb:hover .arr {
+  transform: translateX(3px);
+}
+.gumb:disabled,
+.gumb[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+/* outline / secondary */
+.gumb.obroba {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--ink);
+}
+.gumb.obroba:hover {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+/* danger */
+.gumb.nevarno {
+  background: transparent;
+  color: var(--rok);
+  border-color: var(--rok-line);
+}
+.gumb.nevarno:hover {
+  background: var(--rok-soft);
+  color: var(--rok);
+  border-color: var(--rok);
+}
+/* accent (used rarely — e.g. on the dark trust block) */
+.gumb.poudarek {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: var(--paper);
+}
+.gumb.poudarek:hover {
+  background: var(--brand-dark);
+  border-color: var(--brand-dark);
+}
+/* sizes / width */
+.gumb.mini {
+  padding: 9px 15px;
+  font-size: var(--fs-14);
+}
+.gumb.poln {
+  width: 100%;
+}
+
+/* ---- Eyebrow label (.znacka) — mono, uppercase, tracked ---- */
+.znacka {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--font-mono);
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-label);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--brand);
+  background: none;
+  border: 0;
+  padding: 0;
+}
+.znacka::before {
+  content: "";
+  width: 18px;
+  height: 1px;
+  background: var(--brand);
+  flex: none;
+}
+
+/* ---- Match-confidence pill (.conf) — squared mono tag ---- */
+.conf {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-semibold);
+  padding: 3px 7px;
+  border-radius: var(--radius-sm);
+  background: var(--ok-soft);
+  color: var(--ok-700);
+  border: 1px solid rgba(28, 84, 64, 0.18);
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+}
+.conf.mid {
+  background: var(--soft);
+  color: var(--ink-2);
+  border-color: var(--line);
+}
+
+/* ---- Tag chip (.znak) — read-only profile keyword ---- */
+.znak {
+  display: inline-flex;
+  align-items: center;
+  background: var(--soft);
+  color: var(--ink-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 5px 10px;
+  font-size: var(--fs-13);
+  font-weight: var(--fw-medium);
+}
+
+/* ---- Card (.karta) — flat, hairline, no lift ---- */
+.karta {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-9);
+  box-shadow: var(--shadow-rest);
+  transition: border-color var(--dur) var(--ease);
+}
+.karta.hoverable:hover,
+a.karta:hover {
+  border-color: var(--ink);
+}
+/* generic surface card */
+.kartica {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-10);
+  box-shadow: var(--shadow-rest);
+}
+
+/* ---- Icon tile (.ikona) — bordered ink square, no fill ---- */
+.ikona {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--white);
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+.ikona.sm {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+}
+.ikona.md {
+  width: 44px;
+  height: 44px;
+}
+
+/* ---- Avatar (.avatar) — solid ink, paper initial ---- */
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-serif);
+  font-weight: var(--fw-medium);
+  font-size: 23px;
+  flex: none;
+}
+
+/* ---- Brand mark + wordmark (.logo) ---- */
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  color: var(--ink);
+  text-decoration: none;
+}
+.logo:hover {
+  text-decoration: none;
+}
+.logo .mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  background: var(--brand);
+  color: var(--paper);
+  flex: none;
+}
+.logo .wm {
+  font-weight: var(--fw-bold);
+  font-size: 17px;
+  letter-spacing: var(--ls-wm);
+}
+.logo .dot {
+  color: var(--brand);
+}
+
+/* ---- Metric (.metrika) — serif figure ---- */
+.metrika {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 20px 20px 18px;
+  box-shadow: var(--shadow-rest);
+}
+.metrika .num {
+  font-family: var(--font-serif);
+  font-size: var(--fs-44);
+  font-weight: var(--fw-medium);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--ink);
+}
+.metrika .num small {
+  font-size: var(--fs-19);
+  color: var(--muted);
+}
+.metrika .lab {
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-top: 10px;
+}
+
+/* ---- Pricing card (.paket) — column in a ledger table ---- */
+.paket {
+  display: flex;
+  flex-direction: column;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 30px 26px;
+}
+/* featured column inverts to ink */
+.paket.izpostavljen {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+.paket .top-znacka {
+  align-self: flex-start;
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--brand);
+  margin-bottom: 16px;
+}
+.paket.izpostavljen .top-znacka {
+  color: #8fd6b9;
+}
+.paket h3 {
+  font-family: var(--font-sans);
+  font-size: var(--fs-15);
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0;
+  color: var(--muted);
+}
+.paket.izpostavljen h3 {
+  color: rgba(244, 239, 228, 0.62);
+}
+.paket .cena {
+  font-family: var(--font-serif);
+  font-size: var(--fs-44);
+  font-weight: var(--fw-medium);
+  letter-spacing: -0.02em;
+  margin-top: 8px;
+  color: var(--ink);
+}
+.paket.izpostavljen .cena {
+  color: var(--paper);
+}
+.paket .cena small {
+  font-family: var(--font-sans);
+  font-size: var(--fs-16);
+  font-weight: var(--fw-regular);
+  color: var(--muted);
+}
+.paket .frek {
+  font-family: var(--font-mono);
+  color: var(--ink-2);
+  font-size: var(--fs-13);
+  margin: 12px 0 2px;
+}
+.paket.izpostavljen .frek {
+  color: rgba(244, 239, 228, 0.78);
+}
+.paket ul {
+  list-style: none;
+  padding: 22px 0 26px;
+  margin: 18px 0 26px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.paket.izpostavljen ul {
+  border-color: rgba(244, 239, 228, 0.16);
+}
+.paket li {
+  padding: 7px 0 7px 26px;
+  position: relative;
+  font-size: var(--fs-15);
+  color: var(--ink-2);
+}
+.paket.izpostavljen li {
+  color: rgba(244, 239, 228, 0.9);
+}
+.paket li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 13px;
+  width: 9px;
+  height: 9px;
+  border-left: 1.5px solid var(--brand);
+  border-bottom: 1.5px solid var(--brand);
+  transform: rotate(-45deg);
+}
+.paket.izpostavljen li::before {
+  border-color: #8fd6b9;
+}
+.paket .gumb {
+  margin-top: auto;
+}
+.paket.izpostavljen .gumb {
+  background: var(--paper);
+  color: var(--ink);
+  border-color: var(--paper);
+}
+.paket.izpostavljen .gumb:hover {
+  background: #fff;
+  border-color: #fff;
+}
+
+/* ---- FAQ (details.qa) — ruled rows, no boxes ---- */
+details.qa {
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  margin: 0;
+  background: none;
+}
+.faq details.qa:last-of-type {
+  border-bottom: 1px solid var(--line);
+}
+details.qa summary {
+  cursor: pointer;
+  padding: 22px 4px;
+  font-family: var(--font-serif);
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-22);
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 20px;
+}
+details.qa summary::-webkit-details-marker {
+  display: none;
+}
+details.qa summary::after {
+  content: "+";
+  font-family: var(--font-mono);
+  color: var(--brand);
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1;
+  flex: none;
+  transition: transform var(--dur) var(--ease);
+}
+details.qa[open] summary::after {
+  content: "–";
+}
+details.qa .odg {
+  padding: 0 40px 24px 4px;
+  color: var(--ink-2);
+  font-size: var(--fs-16);
+  max-width: var(--measure);
+}
+
+/* ---- Form fields ---- */
+.polje {
+  margin-bottom: var(--sp-7);
+}
+label {
+  display: block;
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-15);
+  margin-bottom: 8px;
+  color: var(--ink);
+}
+.field {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-size: var(--fs-16);
+  color: var(--ink);
+  background: var(--white);
+  transition: border-color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
+}
+.field::placeholder {
+  color: var(--muted);
+}
+.field:focus {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: var(--ring-focus);
+}
+textarea.field {
+  min-height: 100px;
+  resize: vertical;
+}
+select.field {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--ink-2) 50%),
+    linear-gradient(135deg, var(--ink-2) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 19px, calc(100% - 13px) 19px;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 38px;
+}
+
+/* ---- Choice chips (.chip) — squared selectable ---- */
+.chipi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 13px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: var(--fs-14);
+  color: var(--ink-2);
+  user-select: none;
+  background: var(--white);
+  transition: border-color var(--dur-fast) var(--ease),
+    background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.chip:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+.chip input {
+  margin: 0;
+  accent-color: var(--brand);
+}
+.chip:has(input:checked) {
+  border-color: var(--brand);
+  background: var(--ok-soft);
+  color: var(--brand-700);
+  font-weight: var(--fw-semibold);
+}
+
+/* ---- Inline banners ---- */
+.opozorilo {
+  background: var(--rok-soft);
+  color: var(--rok);
+  padding: 13px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--rok-line);
+}
+.obvestilo {
+  background: var(--ok-soft);
+  color: var(--ok-700);
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(28, 84, 64, 0.18);
+}
+
+/* ---- Utility text ---- */
+.drobno {
+  font-size: var(--fs-14);
+  color: var(--muted);
+}
+/* ==========================================================================
+   site.css — page-level layout for the marketing website ("Editorial Ledger").
+   Hairline structure, asymmetric hero, numbered sections, a dark anchor block,
+   and a ledger-style pricing table. Complements css/components.css.
+   Load AFTER styles.css.
+   ========================================================================== */
+
+/* ---- Section rhythm + headings ---- */
+main section {
+  padding: var(--sp-section) 0;
+}
+h1 {
+  font-family: var(--font-serif);
+  font-size: var(--fs-h1);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-h1);
+  font-weight: var(--fw-medium);
+  margin: 0 0 22px;
+  color: var(--ink);
+}
+h1 em {
+  font-style: italic;
+  color: var(--brand);
+}
+h2 {
+  font-family: var(--font-serif);
+  font-size: var(--fs-h2);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--ls-h2);
+  font-weight: var(--fw-medium);
+  margin: 0 0 16px;
+  color: var(--ink);
+  text-wrap: balance;
+}
+h3 {
+  font-family: var(--font-sans);
+  font-size: var(--fs-18);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--ls-h3);
+  margin: 0 0 6px;
+  color: var(--ink);
+}
+.vodilo {
+  font-size: var(--fs-19);
+  color: var(--ink-2);
+  max-width: var(--content-lead);
+  margin: 0;
+  line-height: var(--lh-lead);
+  text-wrap: pretty;
+}
+
+/* ---- Section eyebrow with index number ---- */
+.oznaka {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 22px;
+}
+.oznaka .num {
+  color: var(--brand);
+  font-weight: var(--fw-semibold);
+}
+.oznaka::after {
+  content: "";
+  width: 26px;
+  height: 1px;
+  background: var(--line);
+}
+
+.sekcija-glava {
+  max-width: 680px;
+  margin-bottom: 48px;
+}
+.sekcija-glava.sredina {
+  margin-left: auto;
+  margin-right: auto;
+}
+.sredina .vodilo {
+  margin-left: auto;
+  margin-right: auto;
+}
+.sredina .oznaka {
+  justify-content: center;
+}
+
+/* ---- Header ---- */
+.site-header {
+  border-bottom: 1px solid var(--line);
+  background: rgba(244, 239, 228, 0.86);
+  backdrop-filter: saturate(120%) blur(8px);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+.site-header .ovoj {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 70px;
+}
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.site-nav .tekst {
+  color: var(--ink-2);
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-15);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  transition: color var(--dur) var(--ease);
+  cursor: pointer;
+}
+.site-nav .tekst:hover {
+  color: var(--ink);
+  text-decoration: none;
+}
+.site-nav .gumb.mini {
+  margin-left: 8px;
+}
+
+/* ---- Hero ---- */
+.hero {
+  position: relative;
+  padding-top: clamp(48px, 6vw, 84px);
+  padding-bottom: var(--sp-section);
+  border-bottom: 1px solid var(--line);
+}
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.04fr 0.96fr;
+  gap: clamp(40px, 5vw, 76px);
+  align-items: center;
+}
+.hero h1 {
+  margin-top: 26px;
+}
+.cta-vrsta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 32px;
+}
+.pike {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+  color: var(--muted);
+  font-size: var(--fs-13);
+  margin-top: 22px;
+}
+.pike span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.pike span::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--brand);
+}
+
+/* ---- Window mockup (the floating "inbox" panel) ---- */
+.okno {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+  overflow: hidden;
+}
+.okno-vrh {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 18px;
+  background: var(--white);
+  border-bottom: 1px solid var(--line);
+}
+.okno-vrh .naslov {
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+.okno-vrh .meta {
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  color: var(--ink-2);
+}
+.mail-glava {
+  padding: 18px 18px 10px;
+}
+.mail-zadeva {
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-16);
+  color: var(--ink);
+}
+.mail-od {
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  color: var(--muted);
+  margin-top: 3px;
+}
+.mail-vrstica {
+  padding: 14px 18px;
+  border-top: 1px solid var(--line-2);
+}
+.mail-vrstica .n {
+  font-weight: var(--fw-semibold);
+  color: var(--ink);
+}
+.mail-vrstica .o {
+  font-size: var(--fs-13);
+  color: var(--muted);
+  margin-top: 1px;
+}
+.mail-vrstica .r {
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  margin-top: 5px;
+  color: var(--muted);
+}
+.mail-vrstica .r b {
+  color: var(--rok);
+  font-weight: var(--fw-semibold);
+}
+
+.match-vrstica {
+  padding: 16px 18px;
+  border-top: 1px solid var(--line-2);
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+}
+.match-vrstica:first-of-type {
+  border-top: none;
+}
+.match-vrstica .n {
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-15);
+  color: var(--ink);
+}
+.match-vrstica .o {
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  color: var(--muted);
+  margin-top: 3px;
+}
+.match-vrstica .why {
+  font-size: var(--fs-13);
+  color: var(--ink-2);
+  margin-top: 6px;
+  font-style: italic;
+}
+
+/* ---- Features — ruled quadrants ---- */
+.funkcije {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+.funkcija {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 30px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.funkcija .ikona {
+  flex: none;
+}
+.funkcija h3 {
+  font-size: var(--fs-17);
+  margin: 4px 0 6px;
+}
+.funkcija p {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: var(--fs-15);
+  line-height: 1.55;
+}
+
+/* ---- Steps — numbered editorial columns ---- */
+.mreza-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+}
+.karta.korak {
+  position: relative;
+  background: none;
+  border: 0;
+  border-top: 2px solid var(--ink);
+  border-radius: 0;
+  box-shadow: none;
+  padding: 24px 0 8px 0;
+}
+.karta.korak .korak-num {
+  font-family: var(--font-serif);
+  font-size: 40px;
+  font-weight: var(--fw-medium);
+  color: var(--brand);
+  line-height: 1;
+  display: block;
+  margin-bottom: 18px;
+}
+.karta.korak h3 {
+  font-family: var(--font-serif);
+  font-size: var(--fs-22);
+  font-weight: var(--fw-medium);
+  margin-bottom: 8px;
+}
+.karta.korak p {
+  color: var(--ink-2);
+}
+
+/* ---- Comparison — split with a centre rule ---- */
+.primerjava {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--white);
+}
+.primerjava .stolpec {
+  padding: 30px 32px;
+}
+.primerjava .stolpec:first-child {
+  border-right: 1px solid var(--line);
+  background: var(--soft);
+}
+.primerjava .glava {
+  font-family: var(--font-mono);
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-12);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 18px;
+  color: var(--ink);
+}
+.primerjava .glava.siva {
+  color: var(--muted);
+}
+.primerjava ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.primerjava li {
+  padding: 11px 0 11px 30px;
+  position: relative;
+  color: var(--ink-2);
+  border-top: 1px solid var(--line-2);
+}
+.primerjava li:first-child {
+  border-top: none;
+}
+.primerjava li.da {
+  color: var(--ink);
+}
+.primerjava li.da::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 17px;
+  width: 9px;
+  height: 9px;
+  border-left: 1.5px solid var(--brand);
+  border-bottom: 1.5px solid var(--brand);
+  transform: rotate(-45deg);
+}
+.primerjava li.ne::before {
+  content: "×";
+  position: absolute;
+  left: 0;
+  top: 10px;
+  color: var(--muted);
+  font-size: 18px;
+}
+
+/* ---- Pricing — ledger table (shared borders, no gaps) ---- */
+.paketi {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.paketi .paket {
+  border: 0;
+  border-right: 1px solid var(--line);
+  border-radius: 0;
+}
+.paketi .paket:last-child {
+  border-right: 0;
+}
+.paketi .paket.izpostavljen {
+  border-right: 0;
+}
+
+/* ---- FAQ width ---- */
+.faq {
+  max-width: 820px;
+}
+
+/* ---- Trust band — the DARK editorial anchor ---- */
+.pas-zaupanja {
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+}
+.pas-zaupanja h2 {
+  color: var(--paper);
+}
+.pas-zaupanja .oznaka {
+  color: rgba(244, 239, 228, 0.55);
+}
+.pas-zaupanja .oznaka .num {
+  color: #8fd6b9;
+}
+.pas-zaupanja .oznaka::after {
+  background: rgba(244, 239, 228, 0.22);
+}
+.pas-zaupanja .vodilo {
+  color: rgba(244, 239, 228, 0.78);
+}
+.pas-zaupanja .vodilo strong {
+  color: var(--paper);
+  font-weight: var(--fw-semibold);
+}
+.izjave {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-top: 12px;
+}
+.izjava {
+  background: transparent;
+  border: 1px solid rgba(244, 239, 228, 0.2);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  color: rgba(244, 239, 228, 0.74);
+  font-family: var(--font-serif);
+  font-size: var(--fs-18);
+  font-style: italic;
+  line-height: 1.5;
+}
+
+/* ---- CTA — framed editorial block ---- */
+.cta-pas {
+  position: relative;
+  background: var(--white);
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  border-radius: var(--radius-xl);
+  padding: clamp(40px, 6vw, 72px) 40px;
+  text-align: center;
+  overflow: hidden;
+}
+.cta-pas h2 {
+  color: var(--ink);
+  margin-bottom: 18px;
+}
+.cta-pas .vodilo {
+  color: var(--ink-2);
+  margin: 0 auto 28px;
+}
+
+/* ---- Account dashboard ---- */
+.racun-glava {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 24px 26px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+.racun-glava .levo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.racun-glava .em {
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-17);
+  color: var(--ink);
+  word-break: break-all;
+}
+.paket-znacka {
+  display: inline-block;
+  font-family: var(--font-mono);
+  color: var(--brand);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 6px;
+}
+.metrike {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  margin-top: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.metrike .metrika {
+  border: 0;
+  border-right: 1px solid var(--line);
+  border-radius: 0;
+}
+.metrike .metrika:last-child {
+  border-right: 0;
+}
+.profil-karta {
+  display: flex;
+  flex-direction: column;
+}
+.profil-karta .glava-p {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.znak-vrsta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+/* ---- Footer ---- */
+.site-footer {
+  border-top: 1px solid var(--line);
+  padding: 56px 0 40px;
+  color: var(--muted);
+  font-size: var(--fs-14);
+  margin-top: 0;
+}
+.site-footer .ovoj {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 28px;
+}
+.site-footer .povezave {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px;
+  margin-bottom: 16px;
+}
+.site-footer .povezave a {
+  color: var(--ink-2);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+}
+.site-footer .povezave a:hover {
+  color: var(--ink);
+}
+.site-footer .discl {
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  color: var(--muted);
+  max-width: 60ch;
+  line-height: 1.6;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 900px) {
+  main section {
+    padding: 56px 0;
+  }
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .funkcije,
+  .primerjava,
+  .mreza-3,
+  .paketi,
+  .izjave,
+  .metrike {
+    grid-template-columns: 1fr;
+  }
+  .funkcije {
+    border-left: 1px solid var(--line);
+  }
+  .primerjava .stolpec:first-child {
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+  }
+  .paketi .paket,
+  .metrike .metrika {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .paketi .paket:last-child,
+  .metrike .metrika:last-child {
+    border-bottom: 0;
+  }
+  .karta.korak {
+    padding-bottom: 20px;
+  }
+}
+
+/* ---- Mobilni meni (hamburger) — dodatek k DS ---- */
+.hamburger { display: none; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: var(--radius-sm); color: var(--ink); cursor: pointer; }
+.hamburger:hover { background: var(--soft); }
+.meni-stikalo { display: none; }
+@media (max-width: 760px) {
+  .site-header .ovoj { position: relative; flex-wrap: nowrap; }
+  .hamburger { display: inline-flex; }
+  .site-nav { display: none; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; align-items: stretch; gap: 2px; background: var(--paper); border-bottom: 1px solid var(--line); padding: 12px var(--container-pad) 18px; }
+  .meni-stikalo:checked ~ .site-nav { display: flex; }
+  .site-nav .tekst { padding: 12px 8px; font-size: var(--fs-16); }
+  .site-nav .gumb.mini { margin-left: 0; width: 100%; margin-top: 8px; }
+}

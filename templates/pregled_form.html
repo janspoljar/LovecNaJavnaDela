@@ -1,22 +1,19 @@
 {% extends "base.html" %}
-{% block naslov %}Brezplačni pregled — javna-narocila.si{% endblock %}
+{% block naslov %}Brezplačni pregled — Javna naročila.si{% endblock %}
 
 {% block vsebina %}
 <section>
 <div class="ovoj ozko">
     <span class="znacka">Brezplačno · brez kartice</span>
     <h1>Brezplačni pregled</h1>
-    <p class="vodilo">
-        Izberite panogo in odkljukate vse, kar počnete. Na email vam pošljemo
-        javna naročila zadnjih 30 dni, ki bi bila za vas.
-    </p>
+    <p class="vodilo">Izberite panogo in odkljukate vse, kar počnete. Na email vam pošljemo javna naročila zadnjih 30 dni, ki bi bila za vas.</p>
 
     {% if napaka %}<div class="opozorilo" style="margin-top:24px;">{{ napaka }}</div>{% endif %}
 
     <form method="post" action="/pregled" style="margin-top:28px;">
         <div class="polje">
             <label for="panoga">Vaša glavna panoga</label>
-            <select name="panoga" id="panoga" required>
+            <select name="panoga" id="panoga" class="field" required>
                 <option value="" disabled {% if not panoga %}selected{% endif %}>— izberite panogo —</option>
                 {% for kljuc, p in panoge.items() %}
                 <option value="{{ kljuc }}" {% if panoga == kljuc %}selected{% endif %}>{{ p.ime }}</option>
@@ -42,15 +39,15 @@
 
         <div class="polje">
             <label for="opis">Še karkoli dodatnega? <span class="drobno">(neobvezno)</span></label>
-            <textarea name="opis" id="opis" placeholder="Npr. specializirani smo tudi za sanacije fasad in vgrajene inštalacije v javnih ustanovah ...">{{ opis or "" }}</textarea>
+            <textarea name="opis" id="opis" class="field" placeholder="Npr. specializirani smo tudi za sanacije fasad in vgrajene inštalacije v javnih ustanovah ...">{{ opis or "" }}</textarea>
         </div>
 
         <div class="polje">
             <label for="email">Vaš email</label>
-            <input type="email" name="email" id="email" value="{{ email or '' }}" placeholder="ime@podjetje.si" required>
+            <input type="email" name="email" id="email" class="field" value="{{ email or '' }}" placeholder="ime@podjetje.si" required>
         </div>
 
-        <button type="submit" class="gumb">Pošlji mi brezplačni pregled</button>
+        <button type="submit" class="gumb poln">Pošlji mi brezplačni pregled</button>
         <p class="drobno" style="margin-top:12px;">Z oddajo se strinjate s <a href="/zasebnost">politiko zasebnosti</a>.</p>
     </form>
 </div>
@@ -63,9 +60,7 @@
         var namig = document.getElementById('namig');
         function osvezi() {
             var izbran = izbira.value;
-            skupine.forEach(function (s) {
-                s.style.display = (s.dataset.panoga === izbran) ? 'flex' : 'none';
-            });
+            skupine.forEach(function (s) { s.style.display = (s.dataset.panoga === izbran) ? 'flex' : 'none'; });
             namig.style.display = izbran ? 'none' : 'block';
         }
         izbira.addEventListener('change', osvezi);

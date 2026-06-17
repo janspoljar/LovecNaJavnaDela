@@ -1,25 +1,20 @@
 {% extends "base.html" %}
-{% block naslov %}Potrditev — javna-narocila.si{% endblock %}
+{% block naslov %}Potrditev — Javna naročila.si{% endblock %}
 
 {% block vsebina %}
 <section>
-<div class="ovoj">
-    <div class="kartica sredina ozko" style="margin:0 auto;">
-        {% if uspeh %}
-        <h1 style="font-size:30px;">Prijava potrjena</h1>
-        <p class="vodilo" style="margin:0 auto 8px;">
-            Vaš email je potrjen in profil je aktiven. Od zdaj naprej vas obveščamo
-            o javnih naročilih, ki ustrezajo vaši dejavnosti.
-        </p>
-        <p style="margin-top:24px;"><a href="/" class="gumb">Nazaj na domačo stran</a></p>
-        {% else %}
-        <h1 style="font-size:30px;">Povezava ni veljavna</h1>
-        <p class="vodilo" style="margin:0 auto 8px;">
-            Ta potrditvena povezava je neveljavna ali že uporabljena. Poskusite se znova prijaviti.
-        </p>
-        <p style="margin-top:24px;"><a href="/registracija" class="gumb">Ponovna registracija</a></p>
-        {% endif %}
-    </div>
+<div class="ovoj ozko">
+    {% if uspeh %}
+    <span class="znacka">Potrjeno</span>
+    <h1>Prijava potrjena</h1>
+    <p class="vodilo">Vaš email je potrjen in profil je aktiven. Od zdaj naprej vas obveščamo o javnih naročilih, ki ustrezajo vaši dejavnosti.</p>
+    <p style="margin-top:24px;"><a href="/" class="gumb">Nazaj na domačo stran</a></p>
+    {% else %}
+    <span class="znacka">Napaka</span>
+    <h1>Povezava ni veljavna</h1>
+    <p class="vodilo">Ta potrditvena povezava je neveljavna ali že uporabljena. Poskusite se znova prijaviti.</p>
+    <p style="margin-top:24px;"><a href="/registracija" class="gumb">Ponovna registracija</a></p>
+    {% endif %}
 </div>
 </section>
 {% endblock %}

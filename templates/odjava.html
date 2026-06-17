@@ -1,20 +1,17 @@
 {% extends "base.html" %}
-{% block naslov %}Odjava — javna-narocila.si{% endblock %}
+{% block naslov %}Odjava — Javna naročila.si{% endblock %}
 
 {% block vsebina %}
 <section>
-<div class="ovoj">
-    <div class="kartica sredina ozko" style="margin:0 auto;">
-        <h1 style="font-size:30px;">Uspešno odjavljeni</h1>
-        {% if email %}
-        <p class="vodilo" style="margin:0 auto;">
-            Naslov <strong>{{ email }}</strong> ne bo več prejemal naših obvestil. Žal nam je, da odhajate.
-        </p>
-        {% else %}
-        <p class="vodilo" style="margin:0 auto;">Odjava je zaključena.</p>
-        {% endif %}
-        <p style="margin-top:24px;"><a href="/" class="gumb obroba">Nazaj na domačo stran</a></p>
-    </div>
+<div class="ovoj ozko">
+    <span class="znacka">Odjava</span>
+    <h1>Uspešno odjavljeni</h1>
+    {% if email %}
+    <p class="vodilo">Naslov <strong>{{ email }}</strong> ne bo več prejemal naših obvestil. Žal nam je, da odhajate.</p>
+    {% else %}
+    <p class="vodilo">Odjava je zaključena.</p>
+    {% endif %}
+    <p style="margin-top:24px;"><a href="/" class="gumb obroba">Nazaj na domačo stran</a></p>
 </div>
 </section>
 {% endblock %}

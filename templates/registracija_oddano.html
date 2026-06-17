@@ -1,17 +1,13 @@
 {% extends "base.html" %}
-{% block naslov %}Potrdite email — javna-narocila.si{% endblock %}
+{% block naslov %}Potrdite email — Javna naročila.si{% endblock %}
 
 {% block vsebina %}
 <section>
-<div class="ovoj">
-    <div class="kartica sredina ozko" style="margin:0 auto;">
-        <h1 style="font-size:30px;">Še en korak</h1>
-        <p class="vodilo" style="margin:0 auto 8px;">
-            Na <strong>{{ email }}</strong> smo poslali email za potrditev prijave.
-            Kliknite gumb v emailu in alerti začnejo prihajati.
-        </p>
-        <p class="drobno">Emaila ne vidite? Preverite mapo z neželeno pošto ali počakajte nekaj minut.</p>
-    </div>
+<div class="ovoj ozko">
+    <span class="znacka">Skoraj končano</span>
+    <h1>Preverite svoj email</h1>
+    <p class="vodilo">Na <strong>{{ email }}</strong> smo poslali potrditveno povezavo. Kliknite jo in alerti začnejo prihajati takoj.</p>
+    <div class="obvestilo" style="margin-top:24px;">Ni emaila? Preverite mapo z neželeno pošto ali nas kontaktirajte.</div>
 </div>
 </section>
 {% endblock %}
